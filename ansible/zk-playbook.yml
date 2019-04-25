@@ -1,0 +1,5 @@
+---
+
+- hosts: zk_nodes
+  roles:
+    - zk

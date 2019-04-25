@@ -1,0 +1,52 @@
+# Doc at http://docs.ansible.com/ansible/cs_securitygroup_rule_module.html
+
+# Rules to be added in the security group
+  - name: SSH to zookeeper instances
+    local_action:
+      module: cs_securitygroup_rule
+      security_group: "{{ security_group_name }}"
+      protocol: tcp
+      start_port: 22
+      end_port: 22
+      # you want might want to restrict this to a secure host, like a bastion
+      # see: https://www.exoscale.ch/syslog/2016/01/15/secure-your-cloud-computing-architecture-with-a-bastion/
+
+  - name: HTTP from anywhere
+    local_action:
+      module: cs_securitygroup_rule
+      security_group: "{{ security_group_name }}"
+      protocol: tcp
+      start_port: 80
+      end_port: 80
+
+  - name: ZK 2888 from anywhere
+    local_action:
+      module: cs_securitygroup_rule
+      security_group: "{{ security_group_name }}"
+      protocol: tcp
+      start_port: 2888
+      end_port: 2888
+
+  - name: ZK 2181 from anywhere
+    local_action:
+      module: cs_securitygroup_rule
+      security_group: "{{ security_group_name }}"
+      protocol: tcp
+      start_port: 2181
+      end_port: 2181
+
+  - name: ZK 8080 from anywhere
+    local_action:
+      module: cs_securitygroup_rule
+      security_group: "{{ security_group_name }}"
+      protocol: tcp
+      start_port: 8080
+      end_port: 8080
+
+  - name: ZK from anywhere
+    local_action:
+      module: cs_securitygroup_rule
+      security_group: "{{ security_group_name }}"
+      protocol: tcp
+      start_port: 3888
+      end_port: 3888

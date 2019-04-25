@@ -1,0 +1,16 @@
+---
+- hosts: localhost
+  connection: local
+  vars:
+    ssh_key: zk
+    num_nodes: 3
+    security_group_name: zk
+    template: Linux Ubuntu 18.04 LTS 64-bit
+    template_filter: featured
+    instance_type: Tiny
+    root_disk_size: 10
+    zone: ch-gva-2
+
+  roles:
+    - common
+    - infra

@@ -1,0 +1,152 @@
+---
+
+- name: Ensure required packages are installed
+  apt:
+    pkg: [curl, wget, default-jre]
+    state: present
+    update_cache: yes
+  tags:
+    - init
+
+- name: Add the 'zk' group, with a specific gid
+  group:
+    name: "{{ zk_group }}"
+    gid: 1001
+    state: present
+  tags:
+    - init
+    - user
+
+- name: Add the 'zk' user with a specific uid ang group
+  user:
+    comment: Zookeeper user
+    name: "{{ zk_user }}"
+    uid: 1001
+    group: "{{ zk_group }}"
+    state: present
+    create_home: no
+    shell: /bin/bash
+  tags:
+    - init
+    - user
+
+- name: Download from the Apache archive site & decompress Zookeeper
+  unarchive:
+    src: https://archive.apache.org/dist/zookeeper/zookeeper-3.5.3-beta/zookeeper-3.5.3-beta.tar.gz
+    dest: "/opt"
+    group: "{{ zk_group }}"
+    owner: "{{ zk_user }}"
+    remote_src: yes
+  tags:
+    - init
+
+- name: Create symlink to app directory
+  file:
+    src: /opt/zookeeper-3.5.3-beta
+    dest: "{{ zk_appdir }}"
+    state: link
+    group: "{{ zk_group }}"
+    owner: "{{ zk_user }}"
+  tags:
+    - init
+    - dirs
+
+- name: Create zk data directory
+  file:
+    path: "{{ zk_datadir }}"
+    state: directory
+    group: "{{ zk_group }}"
+    owner: "{{ zk_user }}"
+  tags:
+    - init
+    - dirs
+
+- name: Create symlink to conf directory
+  file:
+    src: "{{ zk_appdir }}/conf"
+    dest: /etc/zookeeper
+    state: link
+    group: "{{ zk_group }}"
+    owner: "{{ zk_user }}"
+  tags:
+    - init
+    - dirs
+
+- name: Create zk logs directory
+  file:
+    path: "{{ zk_logdir }}"
+    state: directory
+    group: "{{ zk_group }}"
+    owner: "{{ zk_user }}"
+  tags:
+    - init
+    - dirs
+
+- name: Create symlink to logs directory
+  file:
+    src: "{{ zk_logdir }}"
+    dest: /var/log/zookeeper
+    state: link
+    group: "{{ zk_group }}"
+    owner: "{{ zk_user }}"
+  tags:
+    - init
+    - dirs
+
+- name: Set cluster instance ID
+  template:
+    src: zk_id.j2
+    dest: "{{ zk_datadir }}/myid"
+  tags:
+    - init
+
+- name: Create minimal zoo.cfg
+  template:
+    src: zoo.cfg.j2
+    dest: '{{ zk_appdir }}/conf/zoo.cfg'
+  notify:
+    - Restart ZooKeeper
+  tags:
+    - init
+    - conf
+
+- name: Set systemd service defaults
+  template:
+    src: default.j2
+    dest: '/etc/default/zookeeper'
+  notify:
+    - Restart ZooKeeper
+  tags:
+    - init
+    - conf
+
+- name: Create systemd 'system' directory
+  file:
+    path: /usr/lib/systemd/system
+    state: directory
+  tags:
+    - init
+    - dirs
+
+- name: Add systemd service
+  template:
+    src: zookeeper.service.j2
+    dest: /usr/lib/systemd/system/zookeeper.service
+  tags:
+    - init
+    - service
+
+- name: Reload systemd daemon
+  command: systemctl daemon-reload
+  tags:
+    - init
+    - service
+
+- name: Start Zookeeper, and enable Zookeeper service on startup
+  service:
+    name: zookeeper
+    state: started
+    enabled: yes
+  tags:
+    - init
+    - service

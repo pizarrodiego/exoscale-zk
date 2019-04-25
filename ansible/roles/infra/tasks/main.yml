@@ -1,0 +1,5 @@
+---
+  - import_tasks: create_secgroup.yml
+  - import_tasks: create_secgroup_rules.yml
+  - import_tasks: create_vm.yml
+  - import_tasks: create_inv.yml

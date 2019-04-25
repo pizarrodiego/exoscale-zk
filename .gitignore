@@ -1,0 +1,5 @@
+*.retry
+/ansible/cloudstack.ini
+/ansible/inventory
+/.ssh
+/.bash_history

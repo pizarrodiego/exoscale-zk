@@ -1,0 +1,6 @@
+localhost
+
+[zk_nodes]
+{% for item in zk_nodes.results %}
+{{ item.default_ip }} zk_id={{loop.index}}
+{% endfor %}

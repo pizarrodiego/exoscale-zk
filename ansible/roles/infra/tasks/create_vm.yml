@@ -1,0 +1,12 @@
+  - name: Create instances
+    local_action:
+      module: cs_instance
+      display_name: "zk-{{ item }}"
+      template: "{{ template }}"
+      service_offering: "{{ instance_type }}"
+      ssh_key: "{{ ssh_key }}"
+      security_groups: [ '{{ security_group_name }}' ]
+      zone: "{{ zone }}"
+      root_disk_size: "{{ root_disk_size }}"
+    with_sequence: count={{ num_nodes }}
+    register: zk_nodes
